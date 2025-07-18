@@ -144,7 +144,7 @@
     }
 
     function loadRecentOrders() {
-      fetch(`http://localhost:3000/api/orders/admin/${adminId}/recent`)
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/orders/admin/${adminId}/recent`)
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById("recentOrders");
@@ -184,7 +184,7 @@
     }
 
     function loadAllOrders() {
-      fetch(`http://localhost:3000/api/orders/admin/${adminId}`)
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/orders/admin/${adminId}`)
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById("orderList");
@@ -231,7 +231,7 @@
     }
 
     function updateStatus(orderId, status) {
-      fetch(`http://localhost:3000/api/orders/${orderId}`, {
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/orders/${orderId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -241,7 +241,7 @@
     }
 
     function loadProductList() {
-      fetch(`http://localhost:3000/api/products/admin/${adminId}`)
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/products/admin/${adminId}`)
         .then(res => res.json())
         .then(products => {
           const container = document.getElementById("productList");
@@ -264,7 +264,7 @@
     }
 
     function deleteProduct(productId) {
-      fetch(`http://localhost:3000/api/products/${productId}`, {
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/products/${productId}`, {
         method: "DELETE"
       })
       .then(res => res.json())
@@ -286,7 +286,7 @@
         adminId
       };
 
-      fetch("http://localhost:3000/api/products", {
+      fetch("https://quick-dukaan-venkat.onrender.com/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product)
@@ -299,7 +299,7 @@
     });
 
     function loadProfile() {
-      fetch(`http://localhost:3000/api/admin/profile/${adminId}`)
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/admin/profile/${adminId}`)
         .then(res => res.json())
         .then(admin => {
           document.getElementById("shopName").innerText = `Shop: ${admin.shopName}`;
