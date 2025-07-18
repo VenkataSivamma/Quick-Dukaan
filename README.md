@@ -1,2 +1,2 @@
 # Quick-Dukaan
-A Full stack E commerce app names Quick -Dukaan for Kirana Stores 
+A Full stack E commerce app named Quick -Dukaan for Kirana Stores 
