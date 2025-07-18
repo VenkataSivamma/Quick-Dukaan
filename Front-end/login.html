@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dukaan Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .signup {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .signup a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .signup a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Dukaan Login</h2>
+
+    <label for="userType">Select User Type</label>
+    <select id="userType" onchange="toggleFields()">
+      <option value="customer">Customer</option>
+      <option value="admin">Shop</option>
+    </select>
+
+    <!-- Customer Login Form -->
+    <form id="customerForm" onsubmit="handleLogin(event, 'customer')">
+      <input type="text" name="name" placeholder="Customer Name" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login as Customer</button>
+    </form>
+
+    <!-- Admin Login Form -->
+    <form id="adminForm" class="hidden" onsubmit="handleLogin(event, 'admin')">
+      <input type="text" name="shopName" placeholder="Shop Name" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login as Shop keeper</button>
+    </form>
+
+    <div class="signup">
+      Don't have an account? <a onclick="goToSignup()">Sign Up</a>
+    </div>
+  </div>
+
+  <script>
+    function toggleFields() {
+      const userType = document.getElementById("userType").value;
+      document.getElementById("customerForm").classList.toggle("hidden", userType !== "customer");
+      document.getElementById("adminForm").classList.toggle("hidden", userType !== "admin");
+    }
+
+    async function handleLogin(event, userType) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      data.userType = userType;
+
+      try {
+        const res = await fetch("http://localhost:3000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          // Store user ID in localStorage
+          localStorage.setItem(userType + "Id", result.userId);
+
+          // Redirect to appropriate dashboard
+          if (userType === "admin") {
+            window.location.href = "adminDashboard.html";
+          } else {
+            window.location.href = "customerDashboard.html";
+          }
+        } else {
+          alert("Login failed: " + result.message);
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        alert("Something went wrong. Please try again.");
+      }
+    }
+
+    function goToSignup() {
+      const userType = document.getElementById("userType").value;
+      if (userType === "customer") {
+        window.location.href = "customer-signup.html";
+      } else if (userType === "shop") {
+        window.location.href = "admin-signup.html";
+      }
+    }
+  </script>
+</body>
+</html> 

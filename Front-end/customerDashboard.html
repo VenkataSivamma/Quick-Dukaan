@@ -1,0 +1,313 @@
+<!-- ✅ START OF UPDATED CUSTOMER DASHBOARD -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Dashboard - Quick Dukaan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+    .top-navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2f2f2f;
+      color: white;
+      padding: 15px 20px;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 60px);
+    }
+    .sidebar {
+      width: 220px;
+      background-color: #3e3e3e;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 15px;
+    }
+    .sidebar button {
+      background-color: #4e4e4e;
+      border: none;
+      padding: 10px 15px;
+      color: white;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .sidebar button:hover {
+      background-color: #666;
+    }
+    .main-content {
+      flex: 1;
+      background-color: #fff;
+      padding: 30px;
+      overflow-y: auto;
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    .shop-result {
+      margin-bottom: 20px;
+    }
+    .product-card {
+      background: #f0f0f0;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .product-card img {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .order-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 8px;
+      margin: 5px;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-navbar">
+    <h2>Quick Dukaan</h2>
+    <div id="profileBox">👤 Loading email...</div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <button onclick="showSection('home')">🏠 Home</button>
+      <button onclick="showSection('orders')">📦 My Orders</button>
+      <button onclick="showSection('shops')">🏬 Shops</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <div class="main-content">
+      <!-- ✅ HOME -->
+      <div class="section active" id="home">
+        <h3>🔍 Search Shops by City</h3>
+        <input type="text" id="cityInput" placeholder="Enter city..." />
+        <button onclick="searchShops()">Search</button>
+        <div id="searchResults"></div>
+        <div id="cityProducts"></div>
+
+        <h3 style="margin-top:30px;">🔍 Search Products by Name & City</h3>
+        <input type="text" id="searchProduct" placeholder="Enter product name..." />
+        <input type="text" id="searchCity" placeholder="Enter city..." />
+        <button onclick="searchProductByCity()">Search Products</button>
+        <div id="productSearchResults"></div>
+      </div>
+
+      <!-- ✅ ORDERS -->
+      <div class="section" id="orders">
+        <h3>📦 My Orders</h3>
+        <div id="ordersList">Loading...</div>
+      </div>
+
+      <!-- ✅ ALL SHOPS -->
+      <div class="section" id="shops">
+        <h3>🏬 All Shops</h3>
+        <div id="allShops"></div>
+        <div id="shopProducts"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const customerId = localStorage.getItem("customerId");
+    if (!customerId) {
+      alert("Unauthorized. Please login.");
+      window.location.href = "login.html";
+    }
+
+    fetch(`http://localhost:3000/api/customer/profile/${customerId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("profileBox").innerText = `📧 ${data.email}`;
+      });
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if (id === 'orders') loadOrders();
+      if (id === 'shops') loadAllShops();
+    }
+
+    function logout() {
+      localStorage.removeItem("customerId");
+      window.location.href = "login.html";
+    }
+
+    function searchShops() {
+      const city = document.getElementById("cityInput").value;
+      fetch(`http://localhost:3000/api/shops/search?city=${city}`)
+        .then(res => res.json())
+        .then(data => {
+          const result = document.getElementById("searchResults");
+          const container = document.getElementById("cityProducts");
+          container.innerHTML = "";
+          result.innerHTML = data.map(shop => `
+            <div class="shop-result">
+              <strong>${shop.shopName}</strong> - ${shop.city}
+              <button onclick="loadProducts('${shop._id}', 'cityProducts')">View Products</button>
+            </div>
+          `).join('');
+        });
+    }
+
+    function loadAllShops() {
+      fetch("http://localhost:3000/api/shops/all")
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("allShops").innerHTML = data.map(shop => `
+            <div class="shop-result">
+              <strong>${shop.shopName}</strong> - ${shop.city}
+              <button onclick="loadProducts('${shop._id}', 'shopProducts')">View Products</button>
+            </div>
+          `).join('');
+        });
+    }
+
+    function loadProducts(adminId, containerId) {
+      fetch(`http://localhost:3000/api/products/admin/${adminId}`)
+        .then(res => res.json())
+        .then(products => {
+          const container = document.getElementById(containerId);
+          if (products.length === 0) {
+            container.innerHTML = "<p>No products found for this shop.</p>";
+          } else {
+            container.innerHTML = products.map(p => `
+              <div class="product-card">
+                <img src="${p.image}" alt="${p.name}" />
+                <div>
+                  <h4>${p.name}</h4>
+                  <p>Price: ₹${p.price} | Unit: ${p.unit}</p>
+                  <input type="number" id="qty-${p._id}" min="1" value="1" />
+                  <button class="order-btn" onclick="placeOrder('${p.name}', '${p.unit}', '${p._id}', '${adminId}')">Order</button>
+                </div>
+              </div>
+            `).join('');
+          }
+        });
+    }
+
+    function placeOrder(name, unit, productId, adminId) {
+      const qty = parseFloat(document.getElementById(`qty-${productId}`).value);
+      if (!qty || qty <= 0) return alert("Invalid quantity");
+
+      fetch("http://localhost:3000/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerId, productName: name, unit, quantity: qty, adminId })
+      })
+        .then(res => res.json())
+        .then(() => alert("Order placed!"));
+    }
+
+    function loadOrders() {
+  fetch(`http://localhost:3000/api/customer/orders/${customerId}`)
+    .then(res => res.json())
+    .then(data => {
+      const div = document.getElementById("ordersList");
+      if (data.length === 0) {
+        div.innerHTML = "<p>No orders yet.</p>";
+      } else {
+        let ordersByShop = {};
+        data.forEach(o => {
+          const key =` ${o.shopName}||${o.city}`;
+          if (!ordersByShop[key]) {
+            ordersByShop[key] = [];
+          }
+          ordersByShop[key].push(o);
+        });
+
+        div.innerHTML = Object.entries(ordersByShop).map(([key, group]) => {
+          const [shopName, city] = key.split("||");
+          return `
+            <div style="margin-bottom: 30px;">
+              <h4>🏬 ${shopName} (${city})</h4>
+              <table border="1" cellpadding="8" cellspacing="0">
+                <tr><th>Product</th><th>Qty</th><th>Unit</th><th>Status</th></tr>
+                ${group.map(o => `
+                  <tr>
+                    <td>${o.productName}</td>
+                    <td>${o.quantity}</td>
+                    <td>${o.unit}</td>
+                    <td>${o.status}</td>
+                  </tr>
+                `).join('')}
+              </table>
+            </div>
+          `;
+        }).join('');
+      }
+    });
+}
+
+    function searchProductByCity() {
+      const product = document.getElementById("searchProduct").value;
+      const city = document.getElementById("searchCity").value;
+      fetch(`http://localhost:3000/api/products/search?product=${product}&city=${city}`)
+        .then(res => res.json())
+        .then(data => {
+          const result = document.getElementById("productSearchResults");
+          if (data.length === 0) {
+            result.innerHTML = "<p>No matching products found.</p>";
+          } else {
+            result.innerHTML = data.map(entry => `
+              <div class="shop-result">
+                <h4>🛒 ${entry.shopName} (${entry.city})</h4>
+                ${entry.products.map(p => `
+                  <div class="product-card">
+                    <img src="${p.image}" />
+                    <div>
+                      <h4>${p.name}</h4>
+                      <p>Price: ₹${p.price} | Unit: ${p.unit}</p>
+                      <input type="number" id="qty-${p._id}" value="1" min="1" />
+                      <button class="order-btn" onclick="placeOrder('${p.name}', '${p.unit}', '${p._id}', '${p.adminId}')">Order</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `).join('');
+          }
+        });
+    }
+  </script>
+</body>
+</html>
+<!-- ✅ END OF CUSTOMER DASHBOARD -->

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Signup - Dukaan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background: #f2f2f2;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Customer Signup</h2>
+    <form onsubmit="handleSignup(event)">
+      <input type="text" name="name" placeholder="Name" required />
+      <input type="text" name="city" placeholder="City" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="text" name="mobile" placeholder="Mobile Number" required />
+      <input type="password" name="password" placeholder="Set Password" required />
+      <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
+      <button type="submit">Signup</button>
+    </form>
+  </div>
+
+  <script>
+    async function handleSignup(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      if (data.password !== data.confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      const payload = {
+        userType: "customer",
+        name: data.name,
+        city: data.city,
+        email: data.email,
+        password: data.password,
+        mobile: data.mobile
+      };
+
+      try {
+        const res = await fetch("http://localhost:3000/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("Customer signed up successfully!");
+          window.location.href = "login.html";
+        } else {
+          alert("Signup failed: " + result.message);
+        }
+      } catch (err) {
+        alert("Server error!");
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quick Dukaan Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { display: flex; height: 100vh; font-family: 'Segoe UI', sans-serif; }
+    .sidebar {
+      width: 250px; background: #2c3e50; color: white;
+      padding: 20px; display: flex; flex-direction: column;
+    }
+    .sidebar h2 { font-size: 24px; margin-bottom: 30px; }
+    .sidebar button {
+      background: none; border: none; color: white;
+      font-size: 16px; text-align: left; padding: 12px 10px; cursor: pointer;
+    }
+    .sidebar button:hover { background: #34495e; }
+    .main { flex: 1; display: flex; flex-direction: column; }
+    .navbar {
+      background: #f8f9fa; padding: 15px;
+      display: flex; justify-content: space-between; border-bottom: 1px solid #ddd;
+    }
+    .content { padding: 20px; flex-grow: 1; overflow-y: auto; }
+    .section { display: none; }
+    .section.active { display: block; }
+    form input, select {
+      width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 20px;
+      border-radius: 4px; border: 1px solid #ccc;
+    }
+    button[type="submit"] {
+      padding: 10px 20px; background: #27ae60; color: white;
+      border: none; border-radius: 4px; cursor: pointer;
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 10px;
+    }
+    th, td {
+      padding: 10px; border: 1px solid #ddd; text-align: left;
+    }
+    th { background: #f1f1f1; }
+    img.profile-img {
+      width: 100px; height: 100px; object-fit: cover; border-radius: 50%;
+      margin-top: 10px;
+    }
+    button.action-btn {
+      padding: 6px 12px; background: crimson; color: white;
+      border: none; border-radius: 4px; cursor: pointer;
+      margin-top: 5px;
+    }
+    .product-item {
+      display: flex; align-items: center; margin-bottom: 15px;
+      border-bottom: 1px solid #ccc; padding-bottom: 10px;
+    }
+    .product-item img {
+      width: 80px; height: 80px; object-fit: cover; margin-right: 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <button onclick="switchSection('home')">Home</button>
+    <button onclick="switchSection('add-product')">Add Product</button>
+    <button onclick="switchSection('remove-product')">Remove Product</button>
+    <button onclick="switchSection('orders')">Orders</button>
+    <button onclick="switchSection('profile')">Profile</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="main">
+    <div class="navbar">
+      <h1>Quick Dukaan</h1>
+      <span id="shopName">Shop: Loading...</span>
+    </div>
+    <div class="content">
+      <!-- HOME -->
+      <div id="home" class="section active">
+        <h2>Recent Orders</h2>
+        <div id="recentOrders">Loading...</div>
+      </div>
+
+      <!-- ADD PRODUCT -->
+      <div id="add-product" class="section">
+        <h2>Add Product</h2>
+        <form id="addProductForm">
+          <input type="text" name="name" placeholder="Product Name" required />
+          <input type="number" name="price" placeholder="Price (₹)" required />
+          <select name="unit" required>
+            <option value="">-- Select Unit --</option>
+            <option value="kg">Kilogram (kg)</option>
+            <option value="gram">Gram (g)</option>
+            <option value="litre">Litre (L)</option>
+            <option value="packet">Packet</option>
+          </select>
+          <input type="number" name="quantity" placeholder="Quantity" step="0.01" required />
+          <input type="text" name="image" placeholder="Image URL" required />
+          <button type="submit">Add Product</button>
+        </form>
+      </div>
+
+      <!-- REMOVE PRODUCT -->
+      <div id="remove-product" class="section">
+        <h2>Remove Product</h2>
+        <div id="productList">Loading...</div>
+      </div>
+
+      <!-- ORDERS -->
+      <div id="orders" class="section">
+        <h2>Customer Orders</h2>
+        <div id="orderList">Loading...</div>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="profile" class="section">
+        <h2>Profile</h2>
+        <div id="profileDetails">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const adminId = localStorage.getItem("adminId");
+    if (!adminId) {
+      alert("Unauthorized. Please login.");
+      window.location.href = "login.html";
+    }
+
+    function switchSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+
+      if (sectionId === 'home') loadRecentOrders();
+      if (sectionId === 'orders') loadAllOrders();
+      if (sectionId === 'remove-product') loadProductList();
+      if (sectionId === 'profile') loadProfile();
+    }
+
+    function logout() {
+      localStorage.removeItem("adminId");
+      window.location.href = "login.html";
+    }
+
+    function loadRecentOrders() {
+      fetch(`http://localhost:3000/api/orders/admin/${adminId}/recent`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("recentOrders");
+          if (!data || data.length === 0) {
+            container.innerHTML = "<p>No recent orders.</p>";
+            return;
+          }
+
+          const grouped = {};
+          data.forEach(order => {
+            const name = order.customerName || "Unknown";
+            if (!grouped[name]) grouped[name] = [];
+            grouped[name].push(order);
+          });
+
+          container.innerHTML = Object.entries(grouped).map(([customer, orders]) => `
+            <h3>🧑 ${customer}</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th><th>Qty</th><th>Unit</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${orders.map(o => `
+                  <tr>
+                    <td>${o.productName}</td>
+                    <td>${o.quantity}</td>
+                    <td>${o.unit}</td>
+                    <td>${o.status}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `).join('');
+        });
+    }
+
+    function loadAllOrders() {
+      fetch(`http://localhost:3000/api/orders/admin/${adminId}`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("orderList");
+          if (!data || data.length === 0) {
+            container.innerHTML = "<p>No orders yet.</p>";
+            return;
+          }
+
+          const grouped = {};
+          data.forEach(order => {
+            const name = order.customerName || "Unknown";
+            if (!grouped[name]) grouped[name] = [];
+            grouped[name].push(order);
+          });
+
+          container.innerHTML = Object.entries(grouped).map(([customer, orders]) => `
+            <h3>🧑 ${customer}</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th><th>Qty</th><th>Unit</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${orders.map(o => `
+                  <tr>
+                    <td>${o.productName}</td>
+                    <td>${o.quantity}</td>
+                    <td>${o.unit}</td>
+                    <td>
+                      <select onchange="updateStatus('${o._id}', this.value)">
+                        <option value="Pending" ${o.status === "Pending" ? "selected" : ""}>Pending</option>
+                        <option value="Ready to Pickup" ${o.status === "Ready to Pickup" ? "selected" : ""}>Ready to Pickup</option>
+                        <option value="Completed" ${o.status === "Completed" ? "selected" : ""}>Completed</option>
+                        <option value="Cancelled" ${o.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                      </select>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `).join('');
+        });
+    }
+
+    function updateStatus(orderId, status) {
+      fetch(`http://localhost:3000/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      })
+      .then(res => res.json())
+      .then(() => loadAllOrders());
+    }
+
+    function loadProductList() {
+      fetch(`http://localhost:3000/api/products/admin/${adminId}`)
+        .then(res => res.json())
+        .then(products => {
+          const container = document.getElementById("productList");
+          if (!products || products.length === 0) {
+            container.innerHTML = "<p>No products found.</p>";
+          } else {
+            container.innerHTML = products.map(p => `
+              <div class="product-item">
+                <img src="${p.image}" alt="${p.name}" />
+                <div>
+                  <strong>${p.name}</strong><br/>
+                  ₹${p.price} per ${p.unit}<br/>
+                  Quantity: ${p.quantity}<br/>
+                  <button class="action-btn" onclick="deleteProduct('${p._id}')">Remove</button>
+                </div>
+              </div>
+            `).join('');
+          }
+        });
+    }
+
+    function deleteProduct(productId) {
+      fetch(`http://localhost:3000/api/products/${productId}`, {
+        method: "DELETE"
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert("Product deleted");
+        loadProductList();
+      });
+    }
+
+    document.getElementById("addProductForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const product = {
+        name: formData.get("name"),
+        price: parseFloat(formData.get("price")),
+        unit: formData.get("unit"),
+        quantity: parseFloat(formData.get("quantity")),
+        image: formData.get("image"),
+        adminId
+      };
+
+      fetch("http://localhost:3000/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product)
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert("Product added!");
+        e.target.reset();
+      });
+    });
+
+    function loadProfile() {
+      fetch(`http://localhost:3000/api/admin/profile/${adminId}`)
+        .then(res => res.json())
+        .then(admin => {
+          document.getElementById("shopName").innerText = `Shop: ${admin.shopName}`;
+          document.getElementById("profileDetails").innerHTML = `
+            <img src="${admin.photo || 'https://via.placeholder.com/100'}" class="profile-img" alt="Admin Photo" />
+            <p><strong>Admin Name:</strong> ${admin.name}</p>
+            <p><strong>Shop Name:</strong> ${admin.shopName}</p>
+            <p><strong>Email:</strong> ${admin.email}</p>
+            <p><strong>City:</strong> ${admin.city}</p>
+            <p><strong>Mobile:</strong> ${admin.mobile}</p>
+          
+          `;
+        });
+    }
+
+    // Initial load
+    loadProfile();
+    loadRecentOrders();
+  </script>
+</body>
+</html>
