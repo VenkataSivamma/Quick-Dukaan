@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Signup - Dukaan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏪</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      max-width: 420px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #1e3c72;
+      font-weight: 700;
+      font-size: 1.6rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0 16px;
+      border: 2px solid #e1e8ed;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #1e3c72;
+      box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+    }
+    
+    input[type="tel"] {
+      font-family: monospace;
+    }
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #1a3461, #24477a);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(30, 60, 114, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Customer Signup</h2>
+    <form onsubmit="handleSignup(event)">
+      <input type="text" name="name" placeholder="Name" required />
+      <select name="gender" required>
+        <option value="">Select Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+      <input type="text" name="city" placeholder="City" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="tel" name="mobile" placeholder="Mobile Number" pattern="[0-9]{10}" required />
+      <input type="password" name="password" placeholder="Set Password" required />
+      <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
+      <button type="submit">Signup</button>
+    </form>
+  </div>
+
+  <script>
+    async function handleSignup(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      if (data.password !== data.confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      // Validate mobile number
+      if (!/^[0-9]{10}$/.test(data.mobile)) {
+        alert("Please enter a valid 10-digit mobile number");
+        return;
+      }
+
+      const payload = {
+        userType: "customer",
+        name: data.name,
+        gender: data.gender,
+        city: data.city,
+        email: data.email,
+        password: data.password,
+        mobile: data.mobile
+      };
+
+      try {
+        const res = await fetch("https://quick-dukaan-venkat.onrender.com/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("Customer signed up successfully!");
+          window.location.href = "index.html";
+        } else {
+          alert("Signup failed: " + result.message);
+        }
+      } catch (err) {
+        alert("Server error!");
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

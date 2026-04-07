@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Dashboard - Quick Dukaan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Amazon+Ember:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Amazon Ember', 'Inter', sans-serif;
+      background: #eaeded;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .navbar {
+      background: #131921;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .search-bar {
+      flex: 1;
+      display: flex;
+      max-width: 600px;
+    }
+    .search-input {
+      flex: 1;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 4px 0 0 4px;
+      font-size: 1rem;
+    }
+    .search-btn {
+      background: #febd69;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: white;
+    }
+    .categories::-webkit-scrollbar {
+      height: 4px;
+    }
+    .categories::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .categories::-webkit-scrollbar-thumb {
+      background: #667eea;
+      border-radius: 10px;
+    }
+    .categories-bar {
+      background: #232f3e;
+      padding: 0.5rem 1rem;
+      display: flex;
+      gap: 2rem;
+      overflow-x: auto;
+    }
+    .category-link {
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      padding: 0.3rem 0;
+    }
+    .category-link:hover {
+      color: #febd69;
+    }
+    .category-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    }
+    .logo {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 0.5rem;
+      border: 1px solid transparent;
+      border-radius: 2px;
+    }
+    .logo:hover {
+      border-color: #febd69;
+    }
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #f8f9fa;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+    }
+    .container {
+      max-width: 1500px;
+      margin: 0 auto;
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .sidebar {
+      width: 250px;
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      height: fit-content;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid #ddd;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.8rem;
+      margin: 0.2rem 0;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    .nav-item:hover {
+      background: #f0f2f2;
+      color: #c7511f;
+    }
+    .nav-item.active {
+      background: #fff3cd;
+      color: #c7511f;
+      border-left: 3px solid #ff9900;
+    }
+    .main-content {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid #ddd;
+    }
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    .section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .search-container {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      min-width: 200px;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+    }
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-primary {
+      background: #ff9900;
+      color: white;
+      border: 1px solid #e47911;
+    }
+    .btn-primary:hover {
+      background: #e47911;
+    }
+    .btn-secondary {
+      background: #ffd814;
+      color: #0f1111;
+      border: 1px solid #fcd200;
+    }
+    .btn-secondary:hover {
+      background: #f7ca00;
+    }
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .product-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .product-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+    .product-image {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    .product-info {
+      padding: 1rem;
+    }
+    .product-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    .product-price {
+      color: #667eea;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+    }
+    .quantity-input {
+      width: 60px;
+      padding: 0.4rem;
+      border: 2px solid #e9ecef;
+      border-radius: 6px;
+      margin-right: 0.8rem;
+      font-size: 0.9rem;
+    }
+    .order-btn {
+      background: #ffd814;
+      color: #0f1111;
+      border: 1px solid #fcd200;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.8rem;
+    }
+    .order-btn:hover {
+      background: #f7ca00;
+    }
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    .orders-table th {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 1.2rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+    .orders-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-ready-to-pickup { background: #d4edda; color: #155724; }
+    .status-ready { background: #d4edda; color: #155724; }
+    .status-completed { background: #d1ecf1; color: #0c5460; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .remove-btn {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      border: none;
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.75rem;
+    }
+    .remove-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      z-index: 1001;
+      animation: slideIn 0.3s ease;
+    }
+    .notification.error {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #1e3c72;
+      font-size: 0.8rem;
+      margin-left: 1rem;
+    }
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      background: #667eea;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+      box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    .shop-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6c757d;
+    }
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      .sidebar {
+        width: 100%;
+      }
+      .search-container {
+        flex-direction: column;
+      }
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+      .categories {
+        max-width: 100%;
+        gap: 0.3rem;
+      }
+      .category-btn {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+      }
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <i class="fas fa-store"></i> Quick Dukaan
+    </a>
+    <div class="search-bar">
+      <input type="text" class="search-input" placeholder="Search products..." id="globalSearch">
+      <button class="search-btn" onclick="performGlobalSearch()">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+    <div class="nav-right">
+      <div style="font-size: 0.8rem; line-height: 1.2;">
+        <div>Hello, <span id="userName">Customer</span></div>
+        <div style="font-weight: 700;">Account & Lists</div>
+      </div>
+      <div onclick="showSection('orders')" style="cursor: pointer; text-align: center;">
+        <i class="fas fa-shopping-cart" style="font-size: 1.2rem;"></i>
+        <div style="font-size: 0.8rem; font-weight: 700;">Cart</div>
+      </div>
+      <button onclick="logout()" style="background: none; border: 1px solid #febd69; color: white; padding: 0.3rem 0.8rem; border-radius: 2px; cursor: pointer;">
+        Sign Out
+      </button>
+    </div>
+  </nav>
+  
+  <div class="categories-bar">
+    <a href="#" class="category-link" onclick="searchByCategory('groceries')">Groceries</a>
+    <a href="#" class="category-link" onclick="searchByCategory('electronics')">Electronics</a>
+    <a href="#" class="category-link" onclick="searchByCategory('fashion')">Fashion</a>
+    <a href="#" class="category-link" onclick="searchByCategory('home')">Home & Kitchen</a>
+    <a href="#" class="category-link" onclick="searchByCategory('health')">Health</a>
+    <a href="#" class="category-link" onclick="searchByCategory('books')">Books</a>
+    <a href="#" class="category-link" onclick="searchByCategory('sports')">Sports</a>
+    <a href="#" class="category-link" onclick="searchByCategory('toys')">Toys</a>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div style="border-bottom: 1px solid #ddd; padding-bottom: 1rem; margin-bottom: 1rem;">
+        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;">Your Account</h3>
+        <div id="profileBox" style="font-size: 0.8rem; color: #666;">Loading...</div>
+      </div>
+      <div class="nav-item active" onclick="showSection('home')">
+        <i class="fas fa-home"></i> Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('orders')">
+        <i class="fas fa-shopping-bag"></i> My Orders
+      </div>
+      <div class="nav-item" onclick="showSection('shops')">
+        <i class="fas fa-store"></i> Browse Shops
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="section active" id="home">
+        <h2 style="margin-bottom: 2rem; color: #333;"><i class="fas fa-search"></i> Discover Local Shops</h2>
+        
+        <div class="card">
+          <h3 style="margin-bottom: 1rem;"><i class="fas fa-map-marker-alt"></i> Search Shops by City</h3>
+          <div class="search-container">
+            <input type="text" id="cityInput" class="search-input" placeholder="Enter your city..." />
+            <button class="btn btn-primary" onclick="searchShops()">
+              <i class="fas fa-search"></i> Search Shops
+            </button>
+          </div>
+          <div id="searchResults"></div>
+          <div id="cityProducts"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem;"><i class="fas fa-shopping-cart"></i> Find Products</h3>
+          <div class="search-container">
+            <input type="text" id="searchProduct" class="search-input" placeholder="What are you looking for?" />
+            <input type="text" id="searchCity" class="search-input" placeholder="In which city?" />
+            <button class="btn btn-primary" onclick="searchProductByCity()">
+              <i class="fas fa-search"></i> Find Products
+            </button>
+          </div>
+          <div id="productSearchResults"></div>
+        </div>
+      </div>
+
+      <div class="section" id="orders">
+        <h2 style="margin-bottom: 2rem; color: #333;">
+          <i class="fas fa-shopping-bag"></i> My Orders
+          <span class="live-indicator">
+            <span class="live-dot"></span>
+            Live Updates
+          </span>
+        </h2>
+        <div id="ordersList">Loading orders...</div>
+      </div>
+
+      <div class="section" id="shops">
+        <h2 style="margin-bottom: 2rem; color: #333;"><i class="fas fa-store"></i> All Shops</h2>
+        <div id="allShops"></div>
+        <div id="shopProducts"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const customerId = localStorage.getItem("customerId");
+    if (!customerId) {
+      alert("Please login to continue");
+      window.location.href = "index.html";
+    }
+    
+    // Initialize demo orders if none exist
+    function initializeDemoOrders() {
+      const existingOrders = localStorage.getItem(`orders_${customerId}`);
+      if (!existingOrders) {
+        const demoOrders = [
+          {
+            _id: 'demo1',
+            productName: 'Basmati Rice',
+            unit: 'kg',
+            quantity: 2,
+            status: 'Pending',
+            shopName: 'Quick Mart',
+            city: 'Local',
+            orderDate: new Date().toISOString()
+          },
+          {
+            _id: 'demo2',
+            productName: 'Fresh Milk',
+            unit: 'ltr',
+            quantity: 1,
+            status: 'Ready to Pickup',
+            shopName: 'Dairy Fresh',
+            city: 'Local',
+            orderDate: new Date(Date.now() - 86400000).toISOString() // Yesterday
+          },
+          {
+            _id: 'demo3',
+            productName: 'Bread',
+            unit: 'loaf',
+            quantity: 2,
+            status: 'Completed',
+            shopName: 'Bakery Corner',
+            city: 'Local',
+            orderDate: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+          }
+        ];
+        localStorage.setItem(`orders_${customerId}`, JSON.stringify(demoOrders));
+      }
+    }
+    
+    // Initialize demo orders
+    initializeDemoOrders();
+
+    // Load profile
+    fetch(`https://quick-dukaan-venkat.onrender.com/api/customer/profile/${customerId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("profileBox").innerHTML = `${data.name}<br><small>${data.email}</small>`;
+        document.getElementById("userName").textContent = data.name;
+      })
+      .catch(() => {
+        document.getElementById("profileBox").innerHTML = "Profile Error";
+        document.getElementById("userName").textContent = "Customer";
+      });
+      
+    function performGlobalSearch() {
+      const query = document.getElementById('globalSearch').value.trim();
+      if (query) {
+        document.getElementById('searchProduct').value = query;
+        showSection('home');
+        document.getElementById('productSearchResults').scrollIntoView();
+      }
+    }
+    
+    document.getElementById('globalSearch').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') performGlobalSearch();
+    });
+
+    function showSection(id) {
+      // Update nav items
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Update sections
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      
+      if (id === 'orders') loadOrders();
+      if (id === 'shops') loadAllShops();
+    }
+
+    function logout() {
+      localStorage.removeItem("customerId");
+      window.location.href = "index.html";
+    }
+
+    function searchShops() {
+      const city = document.getElementById("cityInput").value.trim();
+      if (!city) return;
+      
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/shops/search?city=${city}`)
+        .then(res => res.json())
+        .then(data => {
+          const result = document.getElementById("searchResults");
+          const container = document.getElementById("cityProducts");
+          container.innerHTML = "";
+          
+          if (data.length === 0) {
+            result.innerHTML = `<div class="empty-state"><i class="fas fa-store-slash"></i><p>No shops found in ${city}</p></div>`;
+          } else {
+            result.innerHTML = data.map(shop => `
+              <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <h4><i class="fas fa-store"></i> ${shop.shopName}</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> ${shop.city}</p>
+                  </div>
+                  <button class="btn btn-primary" onclick="loadProducts('${shop._id}', 'cityProducts')">
+                    <i class="fas fa-eye"></i> View Products
+                  </button>
+                </div>
+              </div>
+            `).join('');
+          }
+        });
+    }
+
+    function loadAllShops() {
+      fetch("https://quick-dukaan-venkat.onrender.com/api/shops/all")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("allShops");
+          if (data.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-store-slash"></i><p>No shops available</p></div>`;
+          } else {
+            container.innerHTML = data.map(shop => `
+              <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <h4><i class="fas fa-store"></i> ${shop.shopName}</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> ${shop.city}</p>
+                    <p><i class="fas fa-envelope"></i> ${shop.email}</p>
+                  </div>
+                  <button class="btn btn-primary" onclick="loadProducts('${shop._id}', 'shopProducts')">
+                    <i class="fas fa-eye"></i> View Products
+                  </button>
+                </div>
+              </div>
+            `).join('');
+          }
+        });
+    }
+
+    function loadProducts(adminId, containerId) {
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/products/admin/${adminId}`)
+        .then(res => res.json())
+        .then(products => {
+          const container = document.getElementById(containerId);
+          if (products.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><p>No products available</p></div>`;
+          } else {
+            container.innerHTML = `
+              <div class="product-grid">
+                ${products.map(p => `
+                  <div class="product-card">
+                    <img src="${p.image}" alt="${p.name}" class="product-image" />
+                    <div class="product-info">
+                      <div class="product-name">${p.name}</div>
+                      <div class="product-price">₹${p.price} per ${p.unit}</div>
+                      <div style="display: flex; align-items: center; gap: 1rem;">
+                        <input type="number" id="qty-${p._id}" class="quantity-input" min="1" value="1" />
+                        <button class="order-btn" onclick="placeOrder('${p.name}', '${p.unit}', '${p._id}', '${adminId}')">
+                          <i class="fas fa-shopping-cart"></i> Order Now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+        });
+    }
+
+    function placeOrder(name, unit, productId, adminId) {
+      const qty = parseFloat(document.getElementById(`qty-${productId}`).value);
+      if (!qty || qty <= 0) {
+        showNotification("Please enter a valid quantity", "error");
+        return;
+      }
+
+      // Create order object
+      const newOrder = {
+        _id: Date.now().toString(),
+        productName: name,
+        unit: unit,
+        quantity: qty,
+        adminId: adminId,
+        customerId: customerId,
+        status: 'Pending',
+        shopName: 'Quick Mart',
+        city: 'Local',
+        orderDate: new Date().toISOString()
+      };
+
+      // Try API first, fallback to localStorage
+      fetch("https://quick-dukaan-venkat.onrender.com/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerId, productName: name, unit, quantity: qty, adminId })
+      })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success) {
+            showNotification("🎉 Order placed successfully!", "success");
+            document.getElementById(`qty-${productId}`).value = 1;
+            if (document.getElementById('orders').classList.contains('active')) {
+              loadOrders();
+            }
+          } else {
+            throw new Error('API failed');
+          }
+        })
+        .catch(() => {
+          // Fallback to localStorage
+          let orders = JSON.parse(localStorage.getItem(`orders_${customerId}`)) || [];
+          orders.push(newOrder);
+          localStorage.setItem(`orders_${customerId}`, JSON.stringify(orders));
+          
+          showNotification("🎉 Order placed successfully!", "success");
+          document.getElementById(`qty-${productId}`).value = 1;
+          
+          if (document.getElementById('orders').classList.contains('active')) {
+            loadOrders();
+          }
+        });
+    }
+
+    function loadOrders() {
+      const div = document.getElementById("ordersList");
+      div.innerHTML = `<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #667eea;"></i><p style="margin-top: 1rem;">Loading orders...</p></div>`;
+      
+      // Get orders from localStorage or use demo data
+      let orders = JSON.parse(localStorage.getItem(`orders_${customerId}`)) || [];
+      
+      // Try to fetch from API, but fallback to local storage
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/customer/orders/${customerId}`)
+        .then(res => {
+          if (!res.ok) throw new Error('API not available');
+          return res.json();
+        })
+        .then(data => {
+          if (Array.isArray(data)) {
+            orders = data;
+            localStorage.setItem(`orders_${customerId}`, JSON.stringify(orders));
+          }
+          displayOrders(orders);
+        })
+        .catch(() => {
+          // Fallback to localStorage or demo data
+          displayOrders(orders);
+        });
+    }
+    
+    function displayOrders(data) {
+      const div = document.getElementById("ordersList");
+      
+      if (!data || data.length === 0) {
+        div.innerHTML = `<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>No orders yet. Start shopping!</p></div>`;
+        return;
+      }
+      
+      let ordersByShop = {};
+      data.forEach(o => {
+        const key = `${o.shopName || 'Quick Mart'}||${o.city || 'Local'}`;
+        if (!ordersByShop[key]) {
+          ordersByShop[key] = [];
+        }
+        ordersByShop[key].push(o);
+      });
+
+      div.innerHTML = Object.entries(ordersByShop).map(([key, group]) => {
+        const [shopName, city] = key.split("||");
+        return `
+          <div class="card">
+            <div class="shop-header">
+              <i class="fas fa-store"></i>
+              <div>
+                <h4>${shopName}</h4>
+                <p>${city}</p>
+              </div>
+            </div>
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-box"></i> Product</th>
+                  <th><i class="fas fa-sort-numeric-up"></i> Quantity</th>
+                  <th><i class="fas fa-weight"></i> Unit</th>
+                  <th><i class="fas fa-info-circle"></i> Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${group.map(o => `
+                  <tr>
+                    <td>${o.productName}</td>
+                    <td>${o.quantity}</td>
+                    <td>${o.unit}</td>
+                    <td><span class="status-badge status-${(o.status || 'pending').toLowerCase().replace(' ', '-')}">${o.status || 'Pending'}</span></td>
+                    <td>
+                      ${o.status === "Completed" ? `<button class="remove-btn" onclick="removeCustomerOrder('${o._id || o.id}')"><i class="fas fa-trash"></i> Remove</button>` : ''}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function searchProductByCity() {
+      const product = document.getElementById("searchProduct").value.trim();
+      const city = document.getElementById("searchCity").value.trim();
+      
+      if (!product || !city) {
+        alert("Please enter both product name and city");
+        return;
+      }
+      
+      fetch(`https://quick-dukaan-venkat.onrender.com/api/products/search?product=${product}&city=${city}`)
+        .then(res => res.json())
+        .then(data => {
+          const result = document.getElementById("productSearchResults");
+          if (data.length === 0) {
+            result.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>No products found for "${product}" in ${city}</p></div>`;
+          } else {
+            result.innerHTML = data.map(entry => `
+              <div class="card">
+                <div class="shop-header">
+                  <i class="fas fa-store"></i>
+                  <div>
+                    <h4>${entry.shopName}</h4>
+                    <p>${entry.city}</p>
+                  </div>
+                </div>
+                <div class="product-grid">
+                  ${entry.products.map(p => `
+                    <div class="product-card">
+                      <img src="${p.image}" alt="${p.name}" class="product-image" />
+                      <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-price">₹${p.price} per ${p.unit}</div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                          <input type="number" id="qty-${p._id}" class="quantity-input" value="1" min="1" />
+                          <button class="order-btn" onclick="placeOrder('${p.name}', '${p.unit}', '${p._id}', '${p.adminId}')">
+                            <i class="fas fa-shopping-cart"></i> Order Now
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('');
+          }
+        });
+    }
+
+    const categoryProducts = {
+      groceries: [
+        {name: 'Basmati Rice', price: 120, unit: 'kg', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300'},
+        {name: 'Toor Dal', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300'},
+        {name: 'Wheat Flour', price: 45, unit: 'kg', image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300'},
+        {name: 'Sunflower Oil', price: 150, unit: 'ltr', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300'}
+      ],
+      fruits: [
+        {name: 'Fresh Apples', price: 180, unit: 'kg', image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300'},
+        {name: 'Bananas', price: 60, unit: 'dozen', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300'},
+        {name: 'Tomatoes', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=300'},
+        {name: 'Spinach', price: 25, unit: 'bunch', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=300'}
+      ],
+      dairy: [
+        {name: 'Fresh Milk', price: 55, unit: 'ltr', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300'},
+        {name: 'Butter', price: 120, unit: '500g', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300'},
+        {name: 'Bread', price: 35, unit: 'loaf', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300'},
+        {name: 'Eggs', price: 80, unit: 'dozen', image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=300'}
+      ],
+      cleaning: [
+        {name: 'Detergent Powder', price: 180, unit: '1kg', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300'},
+        {name: 'Floor Cleaner', price: 95, unit: '1ltr', image: 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=300'},
+        {name: 'Toilet Paper', price: 120, unit: '4 rolls', image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=300'},
+        {name: 'Disinfectant', price: 85, unit: '500ml', image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=300'}
+      ],
+      'personal-care': [
+        {name: 'Shampoo', price: 250, unit: '400ml', image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=300'},
+        {name: 'Toothpaste', price: 85, unit: '100g', image: 'https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=300'},
+        {name: 'Body Soap', price: 45, unit: '125g', image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=300'},
+        {name: 'Face Cream', price: 320, unit: '50g', image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=300'}
+      ],
+      'baby-care': [
+        {name: 'Baby Diapers', price: 450, unit: '30 pcs', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300'},
+        {name: 'Baby Food', price: 180, unit: '200g', image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300'},
+        {name: 'Baby Wipes', price: 120, unit: '80 pcs', image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=300'},
+        {name: 'Baby Lotion', price: 220, unit: '200ml', image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=300'}
+      ],
+      health: [
+        {name: 'Vitamin C', price: 350, unit: '60 tablets', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300'},
+        {name: 'Hand Sanitizer', price: 85, unit: '200ml', image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=300'},
+        {name: 'Protein Powder', price: 1200, unit: '1kg', image: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=300'},
+        {name: 'First Aid Kit', price: 450, unit: '1 set', image: 'https://images.unsplash.com/photo-1603398938795-b6d0c2e8e0b7?w=300'}
+      ],
+      stationery: [
+        {name: 'Notebook', price: 45, unit: '200 pages', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300'},
+        {name: 'Ball Pen', price: 15, unit: 'piece', image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300'},
+        {name: 'A4 Paper', price: 280, unit: '500 sheets', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300'},
+        {name: 'Marker Set', price: 120, unit: '12 pcs', image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300'}
+      ],
+      electronics: [
+        {name: 'Phone Charger', price: 350, unit: 'piece', image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=300'},
+        {name: 'LED Bulb', price: 180, unit: '9W', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300'},
+        {name: 'Earphones', price: 450, unit: 'pair', image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=300'},
+        {name: 'Power Bank', price: 1200, unit: '10000mAh', image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=300'}
+      ],
+      fashion: [
+        {name: 'Cotton T-Shirt', price: 450, unit: 'piece', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300'},
+        {name: 'Jeans', price: 1200, unit: 'piece', image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=300'},
+        {name: 'Sneakers', price: 2500, unit: 'pair', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300'},
+        {name: 'Watch', price: 1800, unit: 'piece', image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=300'}
+      ],
+      kitchen: [
+        {name: 'Non-stick Pan', price: 850, unit: 'piece', image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300'},
+        {name: 'Steel Utensils', price: 450, unit: 'set', image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300'},
+        {name: 'Storage Containers', price: 320, unit: '3 pcs', image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300'},
+        {name: 'Bed Sheets', price: 1200, unit: 'set', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300'}
+      ],
+      pets: [
+        {name: 'Dog Food', price: 650, unit: '3kg', image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=300'},
+        {name: 'Cat Litter', price: 380, unit: '5kg', image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=300'},
+        {name: 'Pet Toys', price: 250, unit: 'set', image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=300'},
+        {name: 'Pet Shampoo', price: 180, unit: '200ml', image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=300'}
+      ],
+      toys: [
+        {name: 'Building Blocks', price: 850, unit: 'set', image: 'https://images.unsplash.com/photo-1558877385-1f2b2c2b8e8b?w=300'},
+        {name: 'Puzzle Game', price: 320, unit: 'piece', image: 'https://images.unsplash.com/photo-1558877385-1f2b2c2b8e8b?w=300'},
+        {name: 'Cricket Bat', price: 1200, unit: 'piece', image: 'https://images.unsplash.com/photo-1558877385-1f2b2c2b8e8b?w=300'},
+        {name: 'Board Game', price: 650, unit: 'set', image: 'https://images.unsplash.com/photo-1558877385-1f2b2c2b8e8b?w=300'}
+      ],
+      automobile: [
+        {name: 'Helmet', price: 1800, unit: 'piece', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300'},
+        {name: 'Bike Cover', price: 450, unit: 'piece', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300'},
+        {name: 'Engine Oil', price: 320, unit: '1ltr', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300'},
+        {name: 'Car Freshener', price: 85, unit: 'piece', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300'}
+      ],
+      seasonal: [
+        {name: 'LED Lights', price: 450, unit: '10m', image: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=300'},
+        {name: 'Diyas', price: 120, unit: '12 pcs', image: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=300'},
+        {name: 'Gift Wrapping', price: 85, unit: '5 sheets', image: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=300'},
+        {name: 'Decorations', price: 320, unit: 'set', image: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=300'}
+      ]
+    };
+
+    function searchByCategory(category) {
+      // Show home section
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('.nav-item')[0].classList.add('active');
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById('home').classList.add('active');
+      
+      const products = categoryProducts[category] || [];
+      const result = document.getElementById('productSearchResults');
+      
+      if (products.length === 0) {
+        result.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>No products found for this category</p></div>`;
+      } else {
+        result.innerHTML = `
+          <div class="card">
+            <div class="shop-header">
+              <i class="fas fa-store"></i>
+              <div>
+                <h4>Quick Mart</h4>
+                <p>Local Store</p>
+              </div>
+            </div>
+            <div class="product-grid">
+              ${products.map((p, index) => `
+                <div class="product-card">
+                  <img src="${p.image}" alt="${p.name}" class="product-image" />
+                  <div class="product-info">
+                    <div class="product-name">${p.name}</div>
+                    <div class="product-price">₹${p.price} per ${p.unit}</div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                      <input type="number" id="qty-${category}-${index}" class="quantity-input" value="1" min="1" />
+                      <button class="order-btn" onclick="placeSampleOrder('${p.name}', '${p.unit}', '${category}-${index}')">
+                        <i class="fas fa-shopping-cart"></i> Order Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function placeSampleOrder(name, unit, productId) {
+      const qty = parseFloat(document.getElementById(`qty-${productId}`).value);
+      if (!qty || qty <= 0) {
+        showNotification("Please enter a valid quantity", "error");
+        return;
+      }
+      
+      // Add to localStorage orders
+      const newOrder = {
+        _id: Date.now().toString(),
+        productName: name,
+        unit: unit,
+        quantity: qty,
+        status: 'Pending',
+        shopName: 'Quick Mart',
+        city: 'Local',
+        orderDate: new Date().toISOString()
+      };
+      
+      let orders = JSON.parse(localStorage.getItem(`orders_${customerId}`)) || [];
+      orders.push(newOrder);
+      localStorage.setItem(`orders_${customerId}`, JSON.stringify(orders));
+      
+      showNotification(`🎉 Order placed for ${qty} ${unit} of ${name}!`, "success");
+      document.getElementById(`qty-${productId}`).value = 1;
+      
+      // Refresh orders if on orders page
+      if (document.getElementById('orders').classList.contains('active')) {
+        loadOrders();
+      }
+    }
+
+    function removeCustomerOrder(orderId) {
+      if (confirm("Are you sure you want to remove this completed order from your history?")) {
+        // Try API first
+        fetch(`https://quick-dukaan-venkat.onrender.com/api/orders/${orderId}`, {
+          method: "DELETE"
+        })
+        .then(res => res.json())
+        .then(() => {
+          showNotification("Order removed from your history!", "success");
+          loadOrders();
+        })
+        .catch(() => {
+          // Fallback to localStorage
+          let orders = JSON.parse(localStorage.getItem(`orders_${customerId}`)) || [];
+          orders = orders.filter(order => order._id !== orderId && order.id !== orderId);
+          localStorage.setItem(`orders_${customerId}`, JSON.stringify(orders));
+          
+          showNotification("Order removed from your history!", "success");
+          loadOrders();
+        });
+      }
+    }
+    
+    function showNotification(message, type = "success") {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type === "error" ? "error" : ""}`;
+      notification.innerHTML = `<i class="fas fa-${type === "error" ? "exclamation-circle" : "check-circle"}"></i> ${message}`;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+    
+    // Real-time updates for customer dashboard
+    let customerRefreshInterval;
+    
+    function startCustomerRealTimeUpdates() {
+      // Set up auto-refresh every 30 seconds for orders
+      customerRefreshInterval = setInterval(() => {
+        const activeSection = document.querySelector('.section.active').id;
+        if (activeSection === 'orders') {
+          loadOrders();
+        }
+      }, 30000); // 30 seconds
+    }
+    
+    function stopCustomerRealTimeUpdates() {
+      if (customerRefreshInterval) {
+        clearInterval(customerRefreshInterval);
+      }
+    }
+    
+    // Start real-time updates
+    startCustomerRealTimeUpdates();
+    
+    // Stop updates when page is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopCustomerRealTimeUpdates();
+      } else {
+        startCustomerRealTimeUpdates();
+      }
+    });
+
+    // Add keyboard support for search
+    document.getElementById('cityInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') searchShops();
+    });
+    
+    document.getElementById('searchProduct').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') searchProductByCity();
+    });
+    
+    document.getElementById('searchCity').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') searchProductByCity();
+    });
+  </script>
+</body>
+</html>
