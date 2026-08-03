@@ -2,19 +2,25 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const path = require("path");
 require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // ✅ Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname)));
 
 // ✅ MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ Connected to MongoDB Atlas"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log("✅ Connected to MongoDB Atlas"))
+    .catch((err) => console.error("❌ MongoDB connection error:", err));
+} else {
+  console.warn("⚠️ MONGODB_URI not set. Running without database connection.");
+}
 
 // ✅ Schemas
 const customerSchema = new mongoose.Schema({
@@ -71,7 +77,11 @@ const Order = mongoose.model("Order", orderSchema);
 
 // 🌐 Root Route
 app.get("/", (req, res) => {
-  res.send("✅ Dukaan Backend is Running!");
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 // 🔐 Login Route
@@ -396,6 +406,10 @@ app.get("/api/products/search", async (req, res) => {
 });
 
 // 🚀 Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = { app, PORT };
